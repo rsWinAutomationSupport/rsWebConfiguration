@@ -86,11 +86,11 @@ function Test-TargetResource
 
     if(!$mimeMapEntry -or ($mimeMapEntry -eq $mimeType))
     {
-        return = $false
+        $IsValid = $false
     }
     else
     {
-        return = $true
+        $IsValid = $true
     }
+    Return $IsValid
 }
-Export-ModuleMember -Function *-TargetResource
