@@ -49,14 +49,13 @@ function Set-TargetResource
 
     if($Ensure -eq "Present")
     {
-        if($mimeMapEntry = $Null)
+        if(!$mimeMapEntry)
         {
             Add-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
         }
         else
         {
-            Remove-WebConfigurationProperty "/system.webServer/staticContent" -name collection -AtElement @{fileExtension=$fileExtension} -Force
-            Add-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
+            Set-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
         }
     }
     elseif($mimeMapEntry -ne $null)
@@ -75,6 +74,9 @@ function Test-TargetResource
         [System.String]
         $fileExtension,
 
+        [System.String]
+        $mimeType,
+
         [ValidateSet("Present","Absent")]
         [System.String]
         $Ensure = "Present"
@@ -82,7 +84,7 @@ function Test-TargetResource
 
     $mimeMapEntry = Get-WebConfiguration -filter "/system.webServer/staticContent/mimeMap[@fileExtension='$fileExtension']"
 
-    if($mimeMapEntry = $null)
+    if(!$mimeMapEntry -or ($mimeMapEntry -eq $mimeType))
     {
         return = $false
     }
