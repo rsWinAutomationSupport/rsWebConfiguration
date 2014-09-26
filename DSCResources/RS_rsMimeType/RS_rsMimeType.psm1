@@ -84,13 +84,23 @@ function Test-TargetResource
 
     $mimeMapEntry = Get-WebConfiguration -filter "/system.webServer/staticContent/mimeMap[@fileExtension='$fileExtension']"
 
-    if(!$mimeMapEntry -or ($mimeMapEntry -eq $mimeType))
-    {
-        $IsValid = $false
-    }
+    if ($Ensure -ne "Present")   
+        {
+            if(!$mimeMapEntry){$IsValid = $true}
+            else {$IsValid = $false}
+        }
+        
     else
     {
-        $IsValid = $true
+        if(!$mimeMapEntry -or ($mimeMapEntry -eq $mimeType))
+        {
+            $IsValid = $false
+        }
+        else
+        {
+            $IsValid = $true
+        }
     }
+    
     Return $IsValid
 }
