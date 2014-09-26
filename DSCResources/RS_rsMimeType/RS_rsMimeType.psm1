@@ -37,7 +37,6 @@ function Set-TargetResource
         [System.String]
         $fileExtension,
 
-        [parameter(Mandatory = $true)]
         [System.String]
         $mimeType,
 
@@ -60,7 +59,7 @@ function Set-TargetResource
             Add-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
         }
     }
-    elseif($mimeMapEntry -ne $mull)
+    elseif($mimeMapEntry -ne $null)
     {
         Remove-WebConfigurationProperty "/system.webServer/staticContent" -name collection -AtElement @{fileExtension=$fileExtension} -Force
     }
@@ -74,7 +73,7 @@ function Test-TargetResource
     (
         [parameter(Mandatory = $true)]
         [System.String]
-        $fileExtention,
+        $fileExtension,
 
         [ValidateSet("Present","Absent")]
         [System.String]
