@@ -52,15 +52,18 @@ function Set-TargetResource
         if(!$mimeMapEntry)
         {
             Add-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
+            Write-EventLog -LogName DevOps -Source RS_rsMimeType -EntryType Information -EventId 1000 -Message "The file extension $fileExtension with MIME type $mimeType has been successfully added to the system MIME map."
         }
         else
         {
             Set-WebConfigurationProperty "/system.webserver/staticContent" -name collection -value @{fileExtension=$fileExtension;mimeType=$mimeType} -Force
+            Write-EventLog -LogName DevOps -Source RS_rsMimeType -EntryType Information -EventId 1000 -Message "The file extension $fileExtension with MIME type $mimeType has been successfully updated to the system MIME map."
         }
     }
     elseif($mimeMapEntry -ne $null)
     {
         Remove-WebConfigurationProperty "/system.webServer/staticContent" -name collection -AtElement @{fileExtension=$fileExtension} -Force
+        Write-EventLog -LogName DevOps -Source RS_rsMimeType -EntryType Information -EventId 1000 -Message "The file extension $fileExtension has been successfully removed to the system MIME map."
     }
 }
 
