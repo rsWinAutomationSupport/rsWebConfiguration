@@ -47,6 +47,7 @@ function Set-TargetResource
 
     $mimeMapEntry = Get-WebConfiguration -filter "/system.webServer/staticContent/mimeMap[@fileExtension='$fileExtension']"
     $logSource = $PSCmdlet.MyInvocation.MyCommand.ModuleName
+    New-EventLog -LogName "DevOps" -Source $logSource -ErrorAction SilentlyContinue
 
     if($Ensure -eq "Present")
     {
