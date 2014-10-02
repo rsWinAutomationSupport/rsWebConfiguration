@@ -17,3 +17,15 @@ rsMimeType RemoveExtZZZ
 	fileExtension = ".zzz"
 	mimeType = "image/gif"
 }
+
+
+
+#rsIISAuthenticationMethod will enabled or disable Windows, Basic, and/or Anonymous Authentication in IIS for a Site or Application.
+
+rsIISAuthenticationMethod DefaultSite
+    {
+    Path = "IIS:\Sites\Default Web Site"
+    WindowsAuth = Enabled
+    BasicAuth = Disabled
+    AnonymousAuth = Disabled
+    }
