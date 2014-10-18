@@ -29,3 +29,13 @@ rsIISAuthenticationMethod DefaultSite
     BasicAuth = Disabled
     AnonymousAuth = Disabled
     }
+    
+    
+   #rsWebsiteSettings currently only supports changing logging path for website
+   
+   rsWebSiteSettings api_rackspacedevops_com
+   {
+   	SiteName = "api.rackspacedevops.com"
+   	LogPath = "C:\IISLogs"
+   }
+  
