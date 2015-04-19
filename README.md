@@ -31,11 +31,28 @@ rsIISAuthenticationMethod DefaultSite
     }
     
     
-   #rsWebsiteSettings currently only supports changing logging path for website
+#rsWebsiteSettings currently only supports changing logging path for website
    
-   rsWebSiteSettings api_rackspacedevops_com
+rsWebSiteSettings api_rackspacedevops_com
    {
    	SiteName = "api.rackspacedevops.com"
    	LogPath = "C:\IISLogs"
    }
   
+#rsIISApplicationInitialization reset site to default settings
+rsIISApplicationInitialization IISAppInit
+{
+    path = "Default Web Site"
+            
+}
+
+#rsIISApplicationInitialization set Application to settings as desired
+rsIISApplicationInitialization IISAppInit2
+{
+    path = "Default Web Site/TestApp"
+    InitAfterRestart = $true
+    skipManagedModules = $false
+    staticPage = "load.gif"
+    initializationPage = "default.aspx"
+    initializationHost = "localhost"
+}
