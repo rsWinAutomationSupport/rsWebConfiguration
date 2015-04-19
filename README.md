@@ -39,6 +39,17 @@ rsWebSiteSettings api_rackspacedevops_com
    	LogPath = "C:\IISLogs"
    }
   
+
+#rsIISApplicationInitialization requires the Web-Server and Web-AppInit features.
+#
+#
+#
+#foreach ($Feature in @("Web-Server","Web-AppInit")) {
+#    WindowsFeature "$Feature" {
+#        Ensure = $Ensure
+#        Name = $Feature
+#    }
+#}
 #rsIISApplicationInitialization reset site to default settings
 rsIISApplicationInitialization IISAppInit
 {
