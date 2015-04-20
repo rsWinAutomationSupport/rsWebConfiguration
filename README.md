@@ -39,6 +39,15 @@ rsWebSiteSettings api_rackspacedevops_com
    	LogPath = "C:\IISLogs"
    }
   
+#rsWebDeploy will deploy a zipped site configuration or content to the folder or site configured. Can be set to Site Path, Site Name, or Site Application.
+
+rsWebDeploy Websites
+{
+    PackagePath = "https://github.com/rsWinAutomationSupport/Websites/archive/master.zip"
+    ContentPath = "C:\Inetpub\websites"
+    Ensure = "Present"
+}
+  
 
 #rsIISApplicationInitialization requires the Web-Server and Web-AppInit features.
 #
