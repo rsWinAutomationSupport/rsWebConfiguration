@@ -31,11 +31,47 @@ rsIISAuthenticationMethod DefaultSite
     }
     
     
-   #rsWebsiteSettings currently only supports changing logging path for website
+#rsWebsiteSettings currently only supports changing logging path for website
    
-   rsWebSiteSettings api_rackspacedevops_com
+rsWebSiteSettings api_rackspacedevops_com
    {
    	SiteName = "api.rackspacedevops.com"
    	LogPath = "C:\IISLogs"
    }
   
+#rsWebDeploy will deploy a zipped site configuration or content to the folder or site configured. Can be set to Site Path, Site Name, or Site Application.
+
+rsWebDeploy Websites
+{
+    PackagePath = "https://github.com/rsWinAutomationSupport/Websites/archive/master.zip"
+    ContentPath = "C:\Inetpub\websites"
+    Ensure = "Present"
+}
+
+#rsIISApplicationInitialization requires the Web-Server and Web-AppInit features.
+#
+#
+#
+#foreach ($Feature in @("Web-Server","Web-AppInit")) {
+#    WindowsFeature "$Feature" {
+#        Ensure = $Ensure
+#        Name = $Feature
+#    }
+#}
+#rsIISApplicationInitialization reset site to default settings
+rsIISApplicationInitialization IISAppInit
+{
+    path = "Default Web Site"
+            
+}
+
+#rsIISApplicationInitialization set Application to settings as desired
+rsIISApplicationInitialization IISAppInit2
+{
+    path = "Default Web Site/TestApp"
+    InitAfterRestart = $true
+    skipManagedModules = $false
+    staticPage = "load.gif"
+    initializationPage = "default.aspx"
+    initializationHost = "localhost"
+}

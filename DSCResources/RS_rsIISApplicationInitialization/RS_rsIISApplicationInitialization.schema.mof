@@ -1,0 +1,10 @@
+[ClassVersion("1.0.0"), FriendlyName("rsIISApplicationInitialization")]
+class RS_rsIISApplicationInitialization : OMI_BaseResource
+{
+    [key,Description("Site or Application Path")] string Path;
+    [write] boolean InitAfterRestart;
+    [write] boolean skipManagedModules;
+    [write] string staticPage;
+    [write] string initializationPage;
+    [write] string initializationHost;
+};
