@@ -47,3 +47,31 @@ rsWebDeploy Websites
     ContentPath = "C:\Inetpub\websites"
     Ensure = "Present"
 }
+
+#rsIISApplicationInitialization requires the Web-Server and Web-AppInit features.
+#
+#
+#
+#foreach ($Feature in @("Web-Server","Web-AppInit")) {
+#    WindowsFeature "$Feature" {
+#        Ensure = $Ensure
+#        Name = $Feature
+#    }
+#}
+#rsIISApplicationInitialization reset site to default settings
+rsIISApplicationInitialization IISAppInit
+{
+    path = "Default Web Site"
+            
+}
+
+#rsIISApplicationInitialization set Application to settings as desired
+rsIISApplicationInitialization IISAppInit2
+{
+    path = "Default Web Site/TestApp"
+    InitAfterRestart = $true
+    skipManagedModules = $false
+    staticPage = "load.gif"
+    initializationPage = "default.aspx"
+    initializationHost = "localhost"
+}
