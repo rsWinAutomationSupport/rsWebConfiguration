@@ -7,10 +7,11 @@ function LocateEntry{
         $entryType,
         $ipAddress,
         $mask,
-        $SiteName
+        $SiteName,
+        $AllowUnlisted
     )
 
-    if((Get-TargetResource @PSBoundParameters).AllowUnlisted){$ipAccessState = $false}
+    if($AllowUnlisted){$ipAccessState = $false}
     else{$ipAccessState = $true}
 
     switch($entryType){
@@ -32,7 +33,8 @@ function LocateEntry{
 }
 function ParseEntryList{
     param(
-        $entry   
+        $entry,
+        $EnableReverseDNS
     )
 
     if(($entry.Contains(".")) -and ($entry.Contains("/"))){
@@ -42,7 +44,7 @@ function ParseEntryList{
         catch{Write-Verbose "Mask from $($entry) could not be parsed as integer. Please check entry";$mask = $null}
         if(($ipAddress -ne $null) -and ($mask -ne $null)){
             $entryType = "Range";$ipAddress = $ipAddress.IPAddressToString
-            Return $entryType,$ipAddress,$mask
+            Return $entryType,$ipAddress.IPAddressToString,$mask
         }
         else{$entryType = "Invalid"}
     }
@@ -52,7 +54,7 @@ function ParseEntryList{
         if($ipAddress -ne $null){
             $entryType = "SingleIP"
         }
-        elseif((Get-TargetResource @PSBoundParameters).EnableReverseDNS){$entryType = "Domain"}
+        elseif($EnableReverseDNS){$entryType = "Domain"}
         else{$entryType = "Invalid"}
     }
     Return $entryType
@@ -81,6 +83,7 @@ function Get-TargetResource{
         "AllowUnlisted" = $domConfig.allowUnlisted
         "DenyAction" = $domConfig.denyAction
         "EnableReverseDNS" = $domConfig.enableReverseDns
+        "EntryList" = $EntryList
     }
 }
 function Set-TargetResource{
@@ -96,39 +99,48 @@ function Set-TargetResource{
 		[string]$SiteName
 	)
     
-    $gtResults = (Get-TargetResource @PSBoundParameters);$configDrift = @{}
+    $gtResults = (Get-TargetResource @PSBoundParameters);
+    $configDrift = @{}
     if($AllowUnlisted){$ipAccessState = $false}
     else{$ipAccessState = $true}
     if($gtResults.SiteName -eq $null){
+        Write-Verbose "Site $($SiteName) could not be located in IIS. The configuration cannot be processed in this state, this event has been logged to the DevOps Event Log."
         Write-EventLog -LogName DevOps -Source RS_rsDomainIPRestrictions -EntryType Error -EventId 1280 -Message "Site $($SiteName) not present in IIS, cannot implement configuration. Exiting..."
         Return
     }
-    elseif($gtResults.AllowUnlisted -ne $AllowUnlisted){$configDrift.Add("AllowUnlisted",$AllowUnlisted)}
-    elseif($gtResults.DenyAction -ne $DenyAction){$configDrift.Add("DenyAction",$DenyAction)}
-    elseif($gtResults.EnableReverseDNS -ne $EnableReverseDNS){$configDrift.Add("EnableReverseDNS",$EnableReverseDNS)}
+    if($gtResults.AllowUnlisted -ne $AllowUnlisted){$configDrift.Add("AllowUnlisted",$AllowUnlisted)}
+    if($gtResults.DenyAction -ne $DenyAction){$configDrift.Add("DenyAction",$DenyAction)}
+    if($gtResults.EnableReverseDNS -ne $EnableReverseDNS){$configDrift.Add("EnableReverseDNS",$EnableReverseDNS)}
 
-    Set-WebConfiguration -Filter system.webserver/security/ipsecurity -Location $SiteName -InputObject $configDrift -Verbose
+    if($configDrift.Count -ne 0){
+        Set-WebConfiguration -Filter system.webserver/security/ipsecurity -Location $SiteName -InputObject $configDrift -Verbose
+    }
 
     foreach($entry in $EntryList){
-        $entryResults = ParseEntryList -entry $entry
-        $entryType = $entryResults[0]
+        $entryResults = ParseEntryList -EnableReverseDNS $EnableReverseDNS -entry $entry
+        if($entryResults.count -gt 1){$entryType = $entryResults[0]}
+        else{$entryType = $entryResults}
         switch($entryType){
             Range{
-                if(-not (LocateEntry -entryType $entryResults[0] -ipAddress $entryResults[1] -mask $entryResults[2])){
-                    Add-WebConfiguration -Filter system.webserver/security/ipsecurity -Location $SiteName -Value @{"ipAddress"=$entryResults[1];"subnetMask"=$entryResults[2];"allowed"=$ipAccessState} -Verbose
+                if(-not (LocateEntry -SiteName $SiteName -AllowUnlisted $AllowUnlisted -entryType $entryType -ipAddress $entryResults[1] -mask $entryResults[2])){
+                    Add-WebConfigurationProperty -Filter system.webserver/security/ipsecurity -Name .collection -Location $SiteName -Value @{ipAddress="$($entryResults[1])";subnetMask="$($entryResults[2])";allowed="$ipAccessState"} -Verbose
                 }
+                else{Write-Verbose "Located entry $($entry) in IIS"}
             }
             SingleIP{
-                if(-not (LocateEntry -entryType $entryResults[0] -ipAddress $entryResults[1] -mask $entryResults[2])){
-                    Add-WebConfiguration -Filter system.webserver/security/ipsecurity -Location $SiteName -Value @{"ipAddress"=$entry;"allowed"=$ipAccessState} -Verbose
+                if(-not (LocateEntry -SiteName $SiteName -AllowUnlisted $AllowUnlisted -entryType $entryType -ipAddress $entry)){
+                    Add-WebConfigurationProperty -Filter system.webserver/security/ipsecurity -Name .collection -Location $SiteName -Value @{"ipAddress"=$entry;"allowed"=$ipAccessState} -Verbose
                 }
+                else{Write-Verbose "Located entry $($entry) in IIS"}
             }
             Domain{
-                if(-not (LocateEntry -entryType $entryResults[0] -ipAddress $entryResults[1] -mask $entryResults[2])){
-                    Add-WebConfiguration -Filter system.webserver/security/ipsecurity -Location $SiteName -Value @{"domainName"=$entry;"allowed"=$ipAccessState} -Verbose
+                if(-not (LocateEntry -SiteName $SiteName -AllowUnlisted $AllowUnlisted -entryType $entryType -ipAddress $entry)){
+                    Add-WebConfigurationProperty -Filter system.webserver/security/ipsecurity -Name .collection -Location $SiteName -Value @{domainName="$entry";allowed="$ipAccessState"} -Verbose
                 }
+                else{Write-Verbose "Located entry $($entry) in IIS"}
             }
             Invalid{
+                Write-Verbose "Entry $($entry) could not be added to configuration because it could not be parsed as IP, IP Range, or Domain, or Reverse DNS is not Enabled. This event has been logged to the DevOps Log"
                 Write-EventLog -LogName DevOps -Source RS_rsDomainIPRestrictions -EntryType Error -EventId 1290 -Message "Domain & IP Restriction entry: $($entry)`ncould not be added, because it could not be parsed as a Domain, IP, or IP Range."
             }
         }
@@ -148,19 +160,24 @@ function Test-TargetResource{
 		[string]$SiteName
 	)
     
-    $gtResults = (Get-TargetResource @PSBoundParameters);$notFoundCounter = 0
+    $gtResults = (Get-TargetResource @PSBoundParameters);
+    $notFoundCounter = 0
     if($gtResults.SiteName -eq $null){Return $false}
     elseif($gtResults.AllowUnlisted -ne $AllowUnlisted){Return $false}
     elseif($gtResults.DenyAction -ne $DenyAction){Return $false}
     elseif($gtResults.EnableReverseDNS -ne $EnableReverseDNS){Return $false}
 
     foreach($entry in $EntryList){
-        $entryResults = ParseEntryList -entry $entry
+        $entryResults = ParseEntryList -EnableReverseDNS $EnableReverseDNS -entry $entry
+        if($entryResults.count -gt 1){$entryType = $entryResults[0]}
+        else{$entryType = $entryResults}
         if($entryResults.count -gt 2){
-            if(-not (LocateEntry -SiteName $SiteName -entryType $entryResults[0] -ipAddress $entryResults[1] -mask $entryResults[2])){$notFoundCounter++}
+            if(-not (LocateEntry -AllowUnlisted $AllowUnlisted -SiteName $SiteName -entryType $entryType -ipAddress $entryResults[1] -mask $entryResults[2])){Write-Verbose "Entry $($entry) Not Found";$notFoundCounter++}
+            else{Write-Verbose "Located entry $($entry) in IIS"}
         }
         else{
-            if(-not (LocateEntry -SiteName $SiteName -entryType $entryResults[0] -ipAddress $entry)){$notFoundCounter++}
+            if(-not (LocateEntry -AllowUnlisted $AllowUnlisted -SiteName $SiteName -entryType $entryType -ipAddress $entry)){Write-Verbose "Entry $($entry) Not Found";$notFoundCounter++}
+            else{Write-Verbose "Located entry $($entry) in IIS"}
         }
     }
 
