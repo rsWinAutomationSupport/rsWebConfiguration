@@ -75,3 +75,23 @@ rsIISApplicationInitialization IISAppInit2
     initializationPage = "default.aspx"
     initializationHost = "localhost"
 }
+```
+## rsDomainIPRestrictions - Module added to enabled DSC to configure Domain and IP Restrictions for Websites
+```Posh
+configuration Sample{
+    Import-DscResource -modulename rsWebConfiguration
+    Node $env:COMPUTERNAME{
+        rsDomainIPRestrictions setIPRestrictions{
+            SiteName = "Default Web Site"
+            AllowUnlisted = $false
+            DenyAction = "Forbidden"
+            EnableReverseDNS = $true
+            EntryList = @("192.168.1.0/24","127.0.0.1","sandbox","apps.google.com")
+        }
+    }
+}
+
+Stop-Process -Name WmiPrvSE -Force -Verbose
+Sample -OutputPath C:\Windows\Temp
+Start-DscConfiguration -Path C:\Windows\Temp -Verbose -Wait -Force
+```
