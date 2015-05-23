@@ -76,7 +76,8 @@ rsIISApplicationInitialization IISAppInit2
     initializationHost = "localhost"
 }
 ```
-## rsDomainIPRestrictions - Module added to enabled DSC to configure Domain and IP Restrictions for Websites
+## rsDomainIPRestrictions - 
+Module added to enabled DSC to configure Domain and IP Restrictions for Websites
 ```Posh
 configuration Sample{
     Import-DscResource -modulename rsWebConfiguration
