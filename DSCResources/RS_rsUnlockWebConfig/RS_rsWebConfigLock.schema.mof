@@ -1,0 +1,11 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("rsWebConfigLock")]
+class RS_rsWebConfigLock : OMI_BaseResource
+{
+	[Key] String filter;
+	[write] string pspath;
+	[write] string location;
+	[write] boolean locked;
+	[write,ValueMap{"general","inclusive","exclusive"},Values{"general","inclusive","exclusive"}] string type;
+};
+
