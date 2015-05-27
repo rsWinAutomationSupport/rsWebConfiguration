@@ -77,7 +77,7 @@ rsIISApplicationInitialization IISAppInit2
 }
 ```
 ## rsDomainIPRestrictions - 
-Module added to enabled DSC to configure Domain and IP Restrictions for Websites
+Resource added to enabled DSC to configure Domain and IP Restrictions for Websites
 ```Posh
 configuration Sample{
     Import-DscResource -modulename rsWebConfiguration
@@ -95,4 +95,24 @@ configuration Sample{
 Stop-Process -Name WmiPrvSE -Force -Verbose
 Sample -OutputPath C:\Windows\Temp
 Start-DscConfiguration -Path C:\Windows\Temp -Verbose -Wait -Force
+```
+## rsWebConfigLock -
+Resource added to enable DSC to configure Configuration locks in the apphost config of the IIS Server and specified sites
+```Posh
+Configuration New{
+    Import-DscResource -ModuleName rsWebConfiguration
+    node $env:COMPUTERNAME{
+        rsWebConfigLock unlockDefaultPaths{
+            filter = "system.webServer/httpErrors/@defaultPath"
+            pspath = 'MACHINE/WEBROOT/APPHOST'
+            locked = $true
+            type = "inclusive" #Required if locked is set to true
+			location = #<optional paramter>
+        }
+    }
+}
+
+Stop-Process -Name WmiPrvSE -Force -Verbose
+New -OutputPath C:\Windows\Temp
+Start-DscConfiguration -Path C:\Windows\Temp -Wait -Force -Verbose
 ```
