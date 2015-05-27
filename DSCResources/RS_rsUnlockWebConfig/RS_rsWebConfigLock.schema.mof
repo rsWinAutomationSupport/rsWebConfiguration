@@ -6,6 +6,6 @@ class RS_rsWebConfigLock : OMI_BaseResource
 	[write] string pspath;
 	[write] string location;
 	[write] boolean locked;
-	[write,ValueMap{"general","inclusive","exclusive"},Values{"general","inclusive","exclusive"}] string type;
+	[write,ValueMap{"inclusive","exclusive"},Values{"inclusive","exclusive"}] string type;
 };
 

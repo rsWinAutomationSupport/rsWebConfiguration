@@ -13,9 +13,15 @@ function BuildandExecute{
         $CommandVerb
 	)
     
-    if($location -eq ""){$PSBoundParameters.Remove("location")}
-    if($psPath -eq ""){$PSBoundParameters.Remove("pspath")}
-    if(($type -eq "") -or (@("Get","Remove") -contains $CommandVerb)){$PSBoundParameters.Remove("type")}
+    if($location -eq ""){$PSBoundParameters.Remove("location") | Out-Null}
+    if($psPath -eq ""){$PSBoundParameters.Remove("pspath") | Out-Null}
+    if(($type -eq "") -or (@("Get","Remove") -contains $CommandVerb)){$PSBoundParameters.Remove("type") | Out-Null}
+
+    if($locked -and ($type -eq "")){
+        Write-EventLog -LogName DevOps -Source RS_rsWebConfigLock -EntryType Error -EventId 1000 -Message "Could not complete configuration because Locked = True and Type is set to null. Type must have a value set to continue."
+        throw "Could not complete configuration because Locked = True and Type is set to null. Type must have a value set to continue."
+    }
+
     $command = $CommandVerb + "-WebConfigurationLock"
     foreach($param in $PSBoundParameters.Keys){
         if(@("verbose","debug","locked","CommandVerb") -notcontains $param){
@@ -43,7 +49,7 @@ function Get-TargetResource{
         [bool]$locked=$false,
         [Parameter(Mandatory=$true)]
         [string]$filter,
-        [ValidateSet("general","inclusive","exclusive")]
+        [ValidateSet("inclusive","exclusive")]
         [string]$type
 	)
     
@@ -71,7 +77,7 @@ function Set-TargetResource{
         [bool]$locked=$false,
         [Parameter(Mandatory=$true)]
         [string]$filter,
-        [ValidateSet("general","inclusive","exclusive")]
+        [ValidateSet("inclusive","exclusive")]
         [string]$type
 	)
 
@@ -93,11 +99,12 @@ function Test-TargetResource{
         [bool]$locked=$false,
         [Parameter(Mandatory=$true)]
         [string]$filter,
-        [ValidateSet("general","inclusive","exclusive")]
+        [ValidateSet("inclusive","exclusive")]
         [string]$type
 	)
 
     $commandResult = BuildandExecute -psPath $psPath -locked $locked -filter $filter -location $location -type $type -CommandVerb Get
+    Write-Verbose "The command returned: $($commandResult)"
     switch($locked){
         True{
             if($commandResult -eq $null){Write-Verbose "Configuration should be locked but query did not return results. Test failed!";Return $false}
