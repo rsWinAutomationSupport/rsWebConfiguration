@@ -1,0 +1,11 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("rsDomainIPRestrictions")]
+class RS_rsDomainIPRestrictions : OMI_BaseResource
+{
+	[Key] String SiteName;
+	[write] boolean AllowUnlisted;
+	[write] boolean EnableReverseDNS;
+	[write,ValueMap{"Forbidden","NotFound","Unauthorized","AbortRequest"},Values{"Forbidden","NotFound","Unauthorized","AbortRequest"}] string DenyAction;
+	[write] string EntryList[];
+};
+
