@@ -89,8 +89,7 @@ function Set-TargetResource
             #this is the case when iis site name is specified (no spaces allowed)
             $appCmd += "-verb:sync -source:package=$PackagePath -dest:iisApp=$ContentPath"           
         }
-        Write-Verbose -Message $appCmd
-        Invoke-Expression $appCmd
+        Write-Verbose -Message "Appcmd command run: $appCmd"
 
     }
     else
