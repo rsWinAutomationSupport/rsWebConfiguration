@@ -74,7 +74,6 @@ function Set-TargetResource
     Write-Verbose -Message "Calling msdeploy.exe to sync the site content from a zip package"
     
     $appCmd = "$env:PROGRAMFILES\IIS\Microsoft Web Deploy V3\msdeploy.exe"
-    $appCmd = "& '$appCmd'"   
         
     if($Ensure -eq "Present")
     {
@@ -82,15 +81,15 @@ function Set-TargetResource
         if($ContentPath.contains("\") -and $ContentPath.contains(":"))
         {
             #this is the case when iis site content path is specified
-            $appCmd += "-verb:sync -source:package=$PackagePath -dest:contentPath=$ContentPath"
+            $params = @("-verb:sync","-source:package=$PackagePath","-dest:contentPath=$ContentPath")
         }
         else
         {
             #this is the case when iis site name is specified (no spaces allowed)
-            $appCmd += "-verb:sync -source:package=$PackagePath -dest:iisApp=$ContentPath"           
+            $params = @("-verb:sync","-source:package=$PackagePath","-dest:iisApp=$ContentPath")
         }
-        Write-Verbose -Message $appCmd
-        Invoke-Expression $appCmd
+        Write-Verbose -Message "Appcmd command run: $appCmd $params"
+        & $appcmd @params
 
     }
     else
