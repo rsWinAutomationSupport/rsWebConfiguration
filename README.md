@@ -116,3 +116,20 @@ Stop-Process -Name WmiPrvSE -Force -Verbose
 New -OutputPath C:\Windows\Temp
 Start-DscConfiguration -Path C:\Windows\Temp -Wait -Force -Verbose
 ```
+
+##rsSiteUpdate -
+Will recycle the app pool of a site when the content has been updated.  Also has a Slack notification option.
+````Posh
+rsSiteUpdate Sample{
+     RepoPath = "" #Path to site content repo
+     CommitIDFile = "" #Filename for the commit ID (site name is probably best)
+     SiteName = "" #Name of site in IIS
+   #All optional below
+     SlackNotify = $true #Default is false
+     NotifyUrl = "" #Slack notification URL
+     Message = "" #Message to be displayed in Slack
+     Username = "" #Username to display in Slack (default Rackspace-Powershell-DSC)
+     Channel = "" #Slack channel name
+     IconUrl = "" #Icon URL to display in Slack (default is a powershell icon)
+}
+```
