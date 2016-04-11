@@ -1,4 +1,7 @@
-﻿function Get-TargetResource
+﻿$DefaultIconUrl = "https://raw.githubusercontent.com/rsWinAutomationSupport/rsWebConfiguration/master/DSCResources/RS_rsSiteUpdate/powershell.png"
+$DefaultUsername = "Rackspace-Powershell-DSC"
+
+function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -30,7 +33,7 @@
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $Username = "Rackspace-Powershell-DSC",
+        $Username = $DefaultUsername,
 
         [parameter(Mandatory = $false)]
         [System.String]
@@ -38,7 +41,7 @@
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $IconUrl = "https://github.com/rsWinAutomationSupport/rsWebConfiguration/tree/master/DSCResources/RS_rsSiteUpdate/powershell.png"
+        $IconUrl = $DefaultIconUrl
     )
 
     return @{
@@ -79,7 +82,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $Username = "Rackspace-Powershell-DSC",
+        $Username = $DefaultUsername,
 
         [parameter(Mandatory = $false)]
         [System.String]
@@ -87,7 +90,7 @@ function Set-TargetResource
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $IconUrl = "https://github.com/rsWinAutomationSupport/rsWebConfiguration/tree/master/DSCResources/RS_rsSiteUpdate/powershell.png"
+        $IconUrl = $DefaultIconUrl
     )
 
     $AppPool = (Get-Item "IIS:\Sites\$SiteName").applicationPool
@@ -141,7 +144,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $Username = "Rackspace-Powershell-DSC",
+        $Username = $DefaultUsername,
 
         [parameter(Mandatory = $false)]
         [System.String]
@@ -149,7 +152,7 @@ function Test-TargetResource
 
         [parameter(Mandatory = $false)]
         [System.String]
-        $IconUrl = "https://github.com/rsWinAutomationSupport/rsWebConfiguration/tree/master/DSCResources/RS_rsSiteUpdate/powershell.png"
+        $IconUrl = $DefaultIconUrl
     )
 
     Set-Location $RepoPath
@@ -164,3 +167,5 @@ function Test-TargetResource
         return $false
     }
 }
+
+Export *-TargetResource
