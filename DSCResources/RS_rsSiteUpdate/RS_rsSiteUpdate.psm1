@@ -10,7 +10,35 @@
 
         [parameter(Mandatory = $true)]
         [System.String]
-        $CommitIDFile
+        $CommitIDFile,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $SiteName,
+
+        [parameter(Mandatory = $false)]
+        [System.Boolean]
+        $SlackNotify = $false,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $NotifyUrl,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Message,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Username = "Rackspace-Powershell-DSC",
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Channel,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $IconUrl = "https://github.com/rsWinAutomationSupport/rsWebConfiguration/tree/master/DSCResources/RS_rsSiteUpdate/powershell.png"
     )
 
     return @{
@@ -93,7 +121,35 @@ function Test-TargetResource
 
         [parameter(Mandatory = $true)]
         [System.String]
-        $CommitIDFile
+        $CommitIDFile,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $SiteName,
+
+        [parameter(Mandatory = $false)]
+        [System.Boolean]
+        $SlackNotify = $false,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $NotifyUrl,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Message,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Username = "Rackspace-Powershell-DSC",
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $Channel,
+
+        [parameter(Mandatory = $false)]
+        [System.String]
+        $IconUrl = "https://github.com/rsWinAutomationSupport/rsWebConfiguration/tree/master/DSCResources/RS_rsSiteUpdate/powershell.png"
     )
 
     Set-Location $RepoPath
