@@ -1,13 +1,13 @@
 [ClassVersion("1.0.0"), FriendlyName("rsSiteUpdate")]
 class RS_rsSiteUpdate : OMI_BaseResource
 {
-    [write,Description{"Path to site content repo"}] string RepoName;
+    [key,Description("Path to site content repo")] string RepoPath;
     [write,Description("Filename for the commit ID (site name is probably best)")] string CommitIDFile;
     [write,Description("Name of site in IIS")] string SiteName;
-    [write,Description{"Notify in Slack (true, false)"}] boolean SlackNotify;
+    [write,Description("Notify in Slack (true, false)")] boolean SlackNotify;
     [write,Description("Slack notification URL")] string NotifyUrl;
     [write,Description("Message to be displayed in Slack")] string Message;
-    [write,Description{"Username to display in Slack (default Rackspace-Powershell-DSC)"}] boolean Username;
+    [write,Description("Username to display in Slack (default Rackspace-Powershell-DSC)")] string Username;
     [write,Description("Slack channel name")] string Channel;
     [write,Description("Icon URL to display in Slack (default is a powershell icon)")] string IconUrl;
 };
