@@ -168,4 +168,4 @@ function Test-TargetResource
     }
 }
 
-Export *-TargetResource
+Export-ModuleMember -Function *-TargetResource
